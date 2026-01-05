@@ -1,4 +1,4 @@
-// 🎵 Final Script with Login/Signup System
+// 🎵 Final Script with Login/Signup System - FIXED FOR GITHUB PAGES
 
 let currentSong = new Audio();
 let songs = [];
@@ -40,7 +40,6 @@ function openModal(mode = "login") {
 }
 
 // Button Event Listeners
-
 loginBtn.onclick = () => openModal("login");
 signupBtn.onclick = () => openModal("signup");
 logoutBtn.onclick = () => {
@@ -85,10 +84,10 @@ authModal.addEventListener("click", (e) => {
   if (e.target === authModal) authModal.style.display = "none";
 });
 
-// 🎶 Fetch all songs
+// 🎶 Fetch all songs - ✅ FIXED
 async function getSongs(folder) {
   currtFolder = folder;
-  const res = await fetch(`http://127.0.0.1:5502/${folder}/`);
+  const res = await fetch(folder);  // ❌ REMOVED: http://127.0.0.1:5500/
   const html = await res.text();
 
   const div = document.createElement("div");
@@ -134,7 +133,7 @@ async function getSongs(folder) {
   return songs;
 }
 
-// ▶️ Play selected song
+// ▶️ Play selected song - ✅ FIXED
 const playMusic = (track, pause = false) => {
   if (!loggedInUser) {
     alert("Please login to play music!");
@@ -143,7 +142,7 @@ const playMusic = (track, pause = false) => {
   }
 
   if (!currtFolder) currtFolder = "songs/ncs";
-  currentSong.src = `http://127.0.0.1:5502/${currtFolder}/${track}`;
+  currentSong.src = `${currtFolder}/${track}`;  // ✅ ALREADY FIXED
   currentSong.currentTime = 0;
   document.querySelector(".circle").style.left = "0%";
 
@@ -156,9 +155,9 @@ const playMusic = (track, pause = false) => {
   document.querySelector(".songtime").innerHTML = "00:00 / 00:00";
 };
 
-// 💿 Display Albums
-async function displayAlbums() {
-  const res = await fetch(`http://127.0.0.1:5502/songs/`);
+// 💿 Display Albums - ✅ FIXED
+async function displayAlbums(folder = "") {  // ✅ ADDED folder param
+  const res = await fetch(`songs/`);  // ✅ FIXED: removed localhost
   const html = await res.text();
   const div = document.createElement("div");
   div.innerHTML = html;
@@ -168,29 +167,27 @@ async function displayAlbums() {
 
   for (let a of anchors) {
     if (a.href.includes("/songs/")) {
-      const folder = a.href.split("/").filter(Boolean).pop();
+      const folderName = a.href.split("/").filter(Boolean).pop();
       try {
-        const infoRes = await fetch(
-          `http://127.0.0.1:5502/songs/${folder}/info.json`
-        );
+        const infoRes = await fetch(`songs/${folderName}/info.json`);  // ✅ FIXED
         if (!infoRes.ok) continue;
         const data = await infoRes.json();
 
         cardContainer.innerHTML += `
-          <div data-folder=${folder} class="card">
+          <div data-folder="songs/${folderName}" class="card"> 
             <div class="play">
             <svg version="1.1" width="20px" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 460.114 460.114" style="enable-background:new 0 0 460.114 460.114;" xml:space="preserve">
-<g>
-	<g>
-		<path d="M393.538,203.629L102.557,5.543c-9.793-6.666-22.468-7.372-32.94-1.832c-10.472,5.538-17.022,16.413-17.022,28.26v396.173
-			c0,11.846,6.55,22.721,17.022,28.26c10.471,5.539,23.147,4.834,32.94-1.832l290.981-198.087
-			c8.746-5.954,13.98-15.848,13.98-26.428C407.519,219.477,402.285,209.582,393.538,203.629z"/>
-	</g>
-</g>
-</svg>
+      viewBox="0 0 460.114 460.114" style="enable-background:new 0 0 460.114 460.114;" xml:space="preserve">
+      <g>
+       <g>
+         <path d="M393.538,203.629L102.557,5.543c-9.793-6.666-22.468-7.372-32.94-1.832c-10.472,5.538-17.022,16.413-17.022,28.26v396.173
+           c0,11.846,6.55,22.721,17.022,28.26c10.471,5.539,23.147,4.834,32.94-1.832l290.981-198.087
+           c8.746-5.954,13.98-15.848,13.98-26.428C407.519,219.477,402.285,209.582,393.538,203.629z"/>
+       </g>
+      </g>
+      </svg>
             </div>
-            <img src="songs/${folder}/cover.jpg" alt="${data.title}" />
+            <img src="songs/${folderName}/cover.jpg" alt="${data.title}" />
             <h2>${data.title}</h2>
             <p>${data.description}</p>
           </div>`;
@@ -205,14 +202,14 @@ async function displayAlbums() {
         openModal("login");
         return;
       }
-      const folder = item.currentTarget.dataset.folder;
-      songs = await getSongs(`songs/${folder}`);
+      const folder = item.currentTarget.dataset.folder;  // ✅ Now gets full path
+      songs = await getSongs(folder);
       playMusic(songs[0]);
     });
   });
 }
 
-// 🚀 MAIN FUNCTION
+// 🚀 MAIN FUNCTION - ✅ FIXED
 async function main() {
   songs = await getSongs("songs/ncs");
   playMusic(songs[0], true);
